@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container">
+    <h1>To-Do List</h1>
+
+    <div class="input-box">
+        <input type="text" id="taskInput" placeholder="Enter Task">
+        <button onclick="addTask()">Add</button>
+    </div>
+
+    <div class="filters">
+        <button onclick="filterTasks('all')">All</button>
+        <button onclick="filterTasks('active')">Active</button>
+        <button onclick="filterTasks('completed')">Completed</button>
+    </div>
+
+    <ul id="taskList"></ul>
+</div>
+
+<script src="script.js"></script>
+</body>
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#f5f1eb,#e8d8c8);
+    padding:20px;
+}
+
+.container{
+    width:100%;
+    max-width:500px;
+    background:#fffaf5;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.15);
+}
+
+h1{
+    text-align:center;
+    color:#7a4e38;
+    margin-bottom:25px;
+    font-size:2.5rem;
+}
+
+.input-box{
+    display:flex;
+    gap:10px;
+    margin-bottom:15px;
+}
+
+input{
+    flex:1;
+    padding:12px;
+    border:2px solid #d8c2b0;
+    border-radius:10px;
+    outline:none;
+    font-size:16px;
+}
+
+input:focus{
+    border-color:#a2674c;
+}
+
+button{
+    padding:12px 18px;
+    border:none;
+    border-radius:10px;
+    background:#a2674c;
+    color:white;
+    cursor:pointer;
+    transition:0.3s;
+    font-size:15px;
+}
+
+button:hover{
+    background:#8b563d;
+    transform:translateY(-2px);
+}
+
+.filters{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.filters button{
+    background:#c89f85;
+}
+
+.filters button:hover{
+    background:#b48468;
+}
+
+#taskList{
+    list-style:none;
+}
+
+#taskList li{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#f0e3d7;
+    padding:15px;
+    margin-bottom:12px;
+    border-left:5px solid #a2674c;
+    border-radius:12px;
+    transition:0.3s;
+}
+
+#taskList li:hover{
+    transform:scale(1.02);
+}
+
+.completed{
+    text-decoration:line-through;
+    opacity:0.6;
+}
+
+#taskList span{
+    cursor:pointer;
+    font-size:17px;
+    color:#4a3528;
+}
+
+#taskList li button{
+    background:#8b563d;
+    padding:10px 15px;
+}
+
+#taskList li button:hover{
+    background:#6f432e;
+}
+
+@media(max-width:600px){
+
+    .container{
+        padding:20px;
+    }
+
+    h1{
+        font-size:2rem;
+    }
+
+    .input-box{
+        flex-direction:column;
+    }
+
+    .filters{
+        flex-wrap:wrap;
+    }
+
+    button{
+        width:100%;
+    }
+}
+</style>
+<script>
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+function saveTasks(){
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function renderTasks(filter="all"){
+    const list = document.getElementById("taskList");
+    list.innerHTML = "";
+
+    tasks.forEach((task,index)=>{
+
+        if(filter==="active" && task.completed) return;
+        if(filter==="completed" && !task.completed) return;
+
+        const li = document.createElement("li");
+
+        li.innerHTML = `
+            <span class="${task.completed ? 'completed' : ''}"
+            onclick="toggleTask(${index})">
+            ${task.text}
+            </span>
+
+            <button onclick="deleteTask(${index})">
+            Delete
+            </button>
+        `;
+
+        list.appendChild(li);
+    });
+}
+
+function addTask(){
+    const input = document.getElementById("taskInput");
+
+    if(input.value.trim()==="") return;
+
+    tasks.push({
+        text: input.value,
+        completed:false
+    });
+
+    input.value="";
+    saveTasks();
+    renderTasks();
+}
+
+function toggleTask(index){
+    tasks[index].completed = !tasks[index].completed;
+    saveTasks();
+    renderTasks();
+}
+
+function deleteTask(index){
+    tasks.splice(index,1);
+    saveTasks();
+    renderTasks();
+}
+
+function filterTasks(type){
+    renderTasks(type);
+}
+
+renderTasks();
+</script>
+</html>
